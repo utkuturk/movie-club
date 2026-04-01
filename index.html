@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>Movie Club</title>
+  <style>
+    :root {
+      --bg: #141210;
+      --paper: #1c1916;
+      --ink: #efe7da;
+      --muted: #b9ab98;
+      --line: #3d352d;
+      --accent: #d0a36d;
+      --accent-soft: #6d5846;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Charter', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+      color: var(--ink);
+      background: #141210;
+      min-height: 100vh;
+    }
+    main {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 52px 24px 72px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      gap: 36px;
+      align-items: start;
+    }
+    section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 24px;
+      margin-bottom: 0;
+    }
+    .hero {
+      grid-column: 1 / -1;
+    }
+    .comments-section {
+      grid-column: 1 / -1;
+    }
+    h1, h2 {
+      margin-top: 0;
+      font-weight: normal;
+      line-height: 1.15;
+    }
+    .hero-title {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: 'Avenir Next Condensed', 'Avenir Next', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-size: clamp(2.2rem, 5vw, 2.9rem);
+      font-weight: 650;
+      text-transform: lowercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    .hero-subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+      margin: 0;
+    }
+    h2 {
+      font-family: 'Avenir Next', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 1.05rem;
+      font-weight: 650;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      text-transform: lowercase;
+    }
+    p, li {
+      font-size: 1.02rem;
+      line-height: 1.72;
+    }
+    .eyebrow, .note { color: var(--muted); }
+    .quote-box {
+      margin: 0 auto 28px;
+      padding: 0.35rem 0 0.35rem 0.85rem;
+      border-left: 3px solid var(--accent);
+      max-width: 640px;
+      text-align: left;
+    }
+    .quote-text {
+      margin: 0;
+      font-size: 1.28rem;
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .quote-movie {
+      display: block;
+      font-size: 0.94rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
+    .quote-stars {
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      margin-bottom: 14px;
+    }
+    .quote-prompt {
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      letter-spacing: 0.03em;
+    }
+    .quote-label {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+    }
+    .intro {
+      margin-bottom: 0.8rem;
+      font-size: clamp(1.18rem, 1.7vw, 1.42rem);
+      line-height: 1.6;
+    }
+    .hero-columns {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+      gap: 28px;
+      align-items: start;
+    }
+    .hero-copy p:first-child {
+      margin-top: 0;
+    }
+    .hero-copy .note {
+      font-size: clamp(1rem, 1.2vw, 1.12rem);
+      line-height: 1.68;
+    }
+    .hero-side {
+      border-top: 1px solid var(--line);
+      padding-top: 6px;
+    }
+    .details {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin: 0 0 22px;
+    }
+    .detail {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .value {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.06rem;
+    }
+    a { color: var(--accent); }
+    a:hover { color: #6c241b; }
+    ul {
+      padding-left: 20px;
+      margin-bottom: 0;
+    }
+    .rating-list {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .rating-list li {
+      margin-bottom: 10px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.96rem;
+      line-height: 1.5;
+    }
+    th {
+      background: transparent;
+      font-weight: normal;
+      color: var(--muted);
+    }
+    tbody tr:hover {
+      background: rgba(208, 163, 109, 0.06);
+    }
+    @media (max-width: 640px) {
+      main {
+        padding: 24px 14px 48px;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .hero-columns {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class='hero'>
+      <div class='hero-title'>
+        <h1>Movie Club @ UMD, Ling</h1>
+        <p class='hero-subtitle'>Some Tuesdays always at 7pm</p>
+      </div>
+      <div class='quote-box'>
+        <span class='quote-movie'>quote of the week: Sentimental Value</span>
+        <div class='quote-stars'>★★★★☆</div>
+        <div class='quote-prompt'>from the favorite part question</div>
+        <p class='quote-text'>"The ending where she doesn't kill herself and it's part of her dad's movie."</p>
+        <span class='quote-label'>-- Anonymous</span>
+      </div>
+      <div class='hero-columns'>
+        <div class='hero-copy'>
+          <p class='intro'>I host movie nights on some Tuesdays. The selection is made by me. There is usually a short post-movie survey. You are free to suggest anything, including movies, and I am free to ignore it.</p>
+          <p class='note'>This is copied in spirit from Sadie's old UC Santa Cruz movie club, apparently once reserved for Sadie's friends only. Credit where it is due: <a href='https://sadiralewis.github.io/'>Sadie</a>.</p>
+        </div>
+        <div class='hero-side'>
+          <div class='details'>
+            <div class='detail'>
+              <span class='label'>When</span>
+              <span class='value'>Tuesdays at 7:00 PM</span>
+            </div>
+            <div class='detail'>
+              <span class='label'>Address</span>
+              <span class='value'>5018 Berwyn Rd, College Park, MD 20740</span>
+            </div>
+            <div class='detail'>
+              <span class='label'>Drinks</span>
+              <span class='value'>BYOB, though I have some booze</span>
+            </div>
+          </div>
+          <p><a href='https://forms.gle/F5SQT92it5Cwmgym7'>RSVP and general interest form</a></p>
+          <p class='note'>Fill it out even if you are not going to be there but want to be informed. I will stop emailing everyone after this.</p>
+        </div>
+      </div>
+    </section>
+    <section>
+      <h2>how it works</h2>
+      <ul>
+        <li>You are free to invite anyone along with you.</li>
+        <li>Eating during the movie is allowed if you know how to eat.</li>
+        <li>There is a post-movie survey after the screening.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>scoreboard</h2>
+      <ul class='rating-list'>
+<li><strong>1. Sentimental Value</strong>: 8.5/10</li>
+      </ul>
+    </section>
+    <section class='comments-section'>
+      <h2>comments from past screenings</h2>
+      <div class='table-wrap'>
+        <table>
+          <thead>
+            <tr><th>Movie</th><th>Rating</th><th>Favorite Part</th><th>Confusing or Disliked Part</th><th>Tone</th><th>Next Movie Suggestion</th></tr>
+          </thead>
+          <tbody>
+<tr><td>Sentimental Value</td><td>9/10</td><td>Probably the last scene where Nora is acting it seems like she's going to hang herself. I also really liked all the scenes with</td><td>No</td><td>Thought-provoking/Philosophical, Emotional/Heartbreaking</td><td>Birdemic: Shock and Terror</td></tr>
+<tr><td>Sentimental Value</td><td>8/10</td><td>The ending where she doesn't kill herself and it's part of her dad's movie.</td><td>Nope</td><td>Thought-provoking/Philosophical, Emotional/Heartbreaking</td><td>Cars 2</td></tr>
+<tr><td>Sentimental Value</td><td>8/10</td><td>The scene in front of the sea around the beginning and the last scene was masterclass basically</td><td>Alternation between incredible scene at the emotional and visual level and then some goofy family drama vibe, also the suicide attempt part at the end like too spontaneous and cliché, main character started incredible and ended up like a middle 40s crises caricature</td><td>Uplifting/Inspirational, Suspenseful/Tense, Emotional/Heartbreaking</td><td>Something fun and intense</td></tr>
+<tr><td>Sentimental Value</td><td>9/10</td><td>my favorite scene was the last scene when it all came together.</td><td>I think it dragged out a little long in some places. Specifically the parts of the story where he was trying to convince his daughter to do the movie and everyone was going back and forth about it. It seemed like it</td><td>Thought-provoking/Philosophical, Suspenseful/Tense, Emotional/Heartbreaking</td><td>No suggestion provided.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
+
