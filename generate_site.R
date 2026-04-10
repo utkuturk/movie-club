@@ -167,8 +167,7 @@ if (length(quote_entries) > 0) {
     stringsAsFactors = FALSE
   )
 
-  week_index <- as.integer(format(Sys.Date(), "%V"))
-  selected_row <- ((week_index - 1) %% nrow(quote_data)) + 1
+  selected_row <- sample.int(nrow(quote_data), 1)
   selected_quote <- as.list(quote_data[selected_row, ])
 }
 
