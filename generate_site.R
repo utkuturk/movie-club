@@ -3,7 +3,11 @@ html_path <- "index.html"
 
 fetch_comments <- function(url) {
   comments <- tryCatch(
-    suppressWarnings(read.csv(url, check.names = FALSE, stringsAsFactors = FALSE)),
+    suppressWarnings(read.csv(
+      url,
+      check.names = FALSE,
+      stringsAsFactors = FALSE
+    )),
     error = function(e) NULL
   )
 
@@ -54,14 +58,28 @@ build_table_rows <- function(data) {
 comments <- fetch_comments(sheet_url)
 
 table_data <- data.frame(
-  Movie = clean_text(comments[["What was the title of the movie we watched?"]], "Not listed"),
-  Rating = paste0(clean_text(comments[["Please rate the movie overall:"]], "Not listed"), "/10"),
-  `Favorite Part` = clean_text(comments[["What was your single favorite part or scene?"]], "No comment provided."),
-  `Confusing or Disliked Part` = clean_text(
-    comments[["Was there anything about the movie you particularly disliked or found confusing?"]],
+  Movie = clean_text(
+    comments[["What was the title of the movie we watched?"]],
+    "Not listed"
+  ),
+  Rating = paste0(
+    clean_text(comments[["Please rate the movie overall:"]], "Not listed"),
+    "/10"
+  ),
+  `Favorite Part` = clean_text(
+    comments[["What was your single favorite part or scene?"]],
     "No comment provided."
   ),
-  Tone = clean_text(comments[["What was the emotional tone of the movie?"]], "Not listed"),
+  `Confusing or Disliked Part` = clean_text(
+    comments[[
+      "Was there anything about the movie you particularly disliked or found confusing?"
+    ]],
+    "No comment provided."
+  ),
+  Tone = clean_text(
+    comments[["What was the emotional tone of the movie?"]],
+    "Not listed"
+  ),
   `Next Movie Suggestion` = clean_text(
     comments[["Any suggestions for the next movie?"]],
     "No suggestion provided."
@@ -70,29 +88,52 @@ table_data <- data.frame(
   stringsAsFactors = FALSE
 )
 
-table_header <- paste0("<th>", html_escape(names(table_data)), "</th>", collapse = "")
+table_header <- paste0(
+  "<th>",
+  html_escape(names(table_data)),
+  "</th>",
+  collapse = ""
+)
 table_rows <- paste(build_table_rows(table_data), collapse = "\n")
 
-movie_names <- clean_text(comments[["What was the title of the movie we watched?"]], "Not listed")
-movie_scores <- clean_text(comments[["Please rate the movie overall:"]], "Not listed")
+movie_names <- clean_text(
+  comments[["What was the title of the movie we watched?"]],
+  "Not listed"
+)
+movie_scores <- clean_text(
+  comments[["Please rate the movie overall:"]],
+  "Not listed"
+)
 numeric_scores <- suppressWarnings(as.numeric(movie_scores))
 ratings_df <- data.frame(
   movie = movie_names,
   score = numeric_scores,
   stringsAsFactors = FALSE
 )
-ratings_df <- ratings_df[!is.na(ratings_df$score) & ratings_df$movie != "Not listed", ]
+ratings_df <- ratings_df[
+  !is.na(ratings_df$score) & ratings_df$movie != "Not listed",
+]
 
 if (nrow(ratings_df) > 0) {
   rating_summary <- aggregate(score ~ movie, data = ratings_df, FUN = mean)
-  rating_summary <- rating_summary[order(-rating_summary$score, rating_summary$movie), ]
+  rating_summary <- rating_summary[
+    order(-rating_summary$score, rating_summary$movie),
+  ]
   rating_summary <- head(rating_summary, 3)
   rating_list_items <- vapply(
     seq_len(nrow(rating_summary)),
     function(i) {
       movie <- rating_summary$movie[i]
       mean_score <- sprintf("%.1f/10", rating_summary$score[i])
-      paste0("<li><strong>", i, ". ", html_escape(movie), "</strong>: ", html_escape(mean_score), "</li>")
+      paste0(
+        "<li><strong>",
+        i,
+        ". ",
+        html_escape(movie),
+        "</strong>: ",
+        html_escape(mean_score),
+        "</li>"
+      )
     },
     character(1)
   )
@@ -106,33 +147,46 @@ favorite_quotes <- clean_text(
   "No comment provided."
 )
 confusing_quotes <- clean_text(
-  comments[["Was there anything about the movie you particularly disliked or found confusing?"]],
+  comments[[
+    "Was there anything about the movie you particularly disliked or found confusing?"
+  ]],
   "No comment provided."
 )
 
-movie_titles <- clean_text(comments[["What was the title of the movie we watched?"]], "Movie Club")
+movie_titles <- clean_text(
+  comments[["What was the title of the movie we watched?"]],
+  "Movie Club"
+)
 movie_stars <- rating_to_stars(comments[["Please rate the movie overall:"]])
 
 favorite_entries <- paste0(
-  "{movie: '", js_escape(movie_titles),
-  "', stars: '", js_escape(movie_stars),
+  "{movie: '",
+  js_escape(movie_titles),
+  "', stars: '",
+  js_escape(movie_stars),
   "', prompt: 'favorite part",
-  "', quote: '", js_escape(favorite_quotes),
+  "', quote: '",
+  js_escape(favorite_quotes),
   "', signature: '-- Anonymous'}"
 )
 favorite_entries <- favorite_entries[
-  favorite_quotes != "No comment provided." & nchar(trimws(favorite_quotes)) >= 7
+  favorite_quotes != "No comment provided." &
+    nchar(trimws(favorite_quotes)) >= 7
 ]
 
 confusing_entries <- paste0(
-  "{movie: '", js_escape(movie_titles),
-  "', stars: '", js_escape(movie_stars),
+  "{movie: '",
+  js_escape(movie_titles),
+  "', stars: '",
+  js_escape(movie_stars),
   "', prompt: 'confusing or disliked part",
-  "', quote: '", js_escape(confusing_quotes),
+  "', quote: '",
+  js_escape(confusing_quotes),
   "', signature: '-- Anonymous'}"
 )
 confusing_entries <- confusing_entries[
-  confusing_quotes != "No comment provided." & nchar(trimws(confusing_quotes)) >= 7
+  confusing_quotes != "No comment provided." &
+    nchar(trimws(confusing_quotes)) >= 7
 ]
 
 quote_entries <- c(favorite_entries, confusing_entries)
@@ -148,20 +202,50 @@ selected_quote <- list(
 if (length(quote_entries) > 0) {
   quote_data <- data.frame(
     movie = c(
-      movie_titles[favorite_quotes != "No comment provided." & nchar(trimws(favorite_quotes)) >= 7],
-      movie_titles[confusing_quotes != "No comment provided." & nchar(trimws(confusing_quotes)) >= 7]
+      movie_titles[
+        favorite_quotes != "No comment provided." &
+          nchar(trimws(favorite_quotes)) >= 7
+      ],
+      movie_titles[
+        confusing_quotes != "No comment provided." &
+          nchar(trimws(confusing_quotes)) >= 7
+      ]
     ),
     stars = c(
-      movie_stars[favorite_quotes != "No comment provided." & nchar(trimws(favorite_quotes)) >= 7],
-      movie_stars[confusing_quotes != "No comment provided." & nchar(trimws(confusing_quotes)) >= 7]
+      movie_stars[
+        favorite_quotes != "No comment provided." &
+          nchar(trimws(favorite_quotes)) >= 7
+      ],
+      movie_stars[
+        confusing_quotes != "No comment provided." &
+          nchar(trimws(confusing_quotes)) >= 7
+      ]
     ),
     prompt = c(
-      rep("favorite part", sum(favorite_quotes != "No comment provided." & nchar(trimws(favorite_quotes)) >= 7)),
-      rep("confusing or disliked part", sum(confusing_quotes != "No comment provided." & nchar(trimws(confusing_quotes)) >= 7))
+      rep(
+        "favorite part",
+        sum(
+          favorite_quotes != "No comment provided." &
+            nchar(trimws(favorite_quotes)) >= 7
+        )
+      ),
+      rep(
+        "confusing or disliked part",
+        sum(
+          confusing_quotes != "No comment provided." &
+            nchar(trimws(confusing_quotes)) >= 7
+        )
+      )
     ),
     quote = c(
-      favorite_quotes[favorite_quotes != "No comment provided." & nchar(trimws(favorite_quotes)) >= 7],
-      confusing_quotes[confusing_quotes != "No comment provided." & nchar(trimws(confusing_quotes)) >= 7]
+      favorite_quotes[
+        favorite_quotes != "No comment provided." &
+          nchar(trimws(favorite_quotes)) >= 7
+      ],
+      confusing_quotes[
+        confusing_quotes != "No comment provided." &
+          nchar(trimws(confusing_quotes)) >= 7
+      ]
     ),
     signature = "-- Anonymous",
     stringsAsFactors = FALSE
@@ -198,7 +282,7 @@ page <- paste0(
   "    }\n",
   "    main {\n",
   "      max-width: 1160px;\n",
-      "      margin: 0 auto;\n",
+  "      margin: 0 auto;\n",
   "      padding: 52px 24px 72px;\n",
   "      display: grid;\n",
   "      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);\n",
@@ -237,7 +321,7 @@ page <- paste0(
   "    .hero-subtitle {\n",
   "      color: var(--muted);\n",
   "      font-size: 1rem;\n",
-      "      letter-spacing: 0.02em;\n",
+  "      letter-spacing: 0.02em;\n",
   "      margin: 0;\n",
   "    }\n",
   "    h2 {\n",
@@ -339,7 +423,7 @@ page <- paste0(
   "    a { color: var(--accent); }\n",
   "    a:hover { color: #6c241b; }\n",
   "    ul {\n",
-      "      padding-left: 20px;\n",
+  "      padding-left: 20px;\n",
   "      margin-bottom: 0;\n",
   "    }\n",
   "    .rating-list {\n",
@@ -394,25 +478,38 @@ page <- paste0(
   "    <section class='hero'>\n",
   "      <div class='hero-title'>\n",
   "        <h1>Movie Club @ UMD, Ling</h1>\n",
-  "        <p class='hero-subtitle'>Some Tuesdays always at 7pm</p>\n",
+  "        <p class='hero-subtitle'>Some Wednesdays always at 7pm</p>\n",
   "      </div>\n",
   "      <div class='quote-box'>\n",
-  "        <span class='quote-movie'>quote of the week: ", html_escape(selected_quote$movie), "</span>\n",
-  "        <div class='quote-stars'>", html_escape(selected_quote$stars), "</div>\n",
-  "        <div class='quote-prompt'>", if (selected_quote$prompt != "") paste0("from the ", html_escape(selected_quote$prompt), " question") else "", "</div>\n",
-  "        <p class='quote-text'>\"", html_escape(selected_quote$quote), "\"</p>\n",
-  "        <span class='quote-label'>", html_escape(selected_quote$signature), "</span>\n",
+  "        <span class='quote-movie'>quote of the week: ",
+  html_escape(selected_quote$movie),
+  "</span>\n",
+  "        <div class='quote-stars'>",
+  html_escape(selected_quote$stars),
+  "</div>\n",
+  "        <div class='quote-prompt'>",
+  if (selected_quote$prompt != "") {
+    paste0("from the ", html_escape(selected_quote$prompt), " question")
+  } else {
+    ""
+  },
+  "</div>\n",
+  "        <p class='quote-text'>\"",
+  html_escape(selected_quote$quote),
+  "\"</p>\n",
+  "        <span class='quote-label'>",
+  html_escape(selected_quote$signature),
+  "</span>\n",
   "      </div>\n",
   "      <div class='hero-columns'>\n",
   "        <div class='hero-copy'>\n",
-  "          <p class='intro'>I host movie nights on some Tuesdays. The selection is made by me. There is usually a short post-movie survey. You are free to suggest anything, including movies, and I am free to ignore it.</p>\n",
-  "          <p class='note'>This is copied in spirit from Sadie's old UC Santa Cruz movie club, apparently once reserved for Sadie's friends only. Credit where it is due: <a href='https://sadiralewis.github.io/'>Sadie</a>.</p>\n",
+  "          <p class='intro'>I host movie nights on some Wednesdays. The selection is made by me. There is usually a short post-movie survey. You are free to suggest anything, including movies, and I am free to ignore it.</p>\n",
   "        </div>\n",
   "        <div class='hero-side'>\n",
   "          <div class='details'>\n",
   "            <div class='detail'>\n",
   "              <span class='label'>When</span>\n",
-  "              <span class='value'>Tuesdays at 7:00 PM</span>\n",
+  "              <span class='value'>Wednesday at 7:00 PM</span>\n",
   "            </div>\n",
   "            <div class='detail'>\n",
   "              <span class='label'>Address</span>\n",
@@ -439,7 +536,8 @@ page <- paste0(
   "    <section>\n",
   "      <h2>scoreboard</h2>\n",
   "      <ul class='rating-list'>\n",
-  rating_list_html, "\n",
+  rating_list_html,
+  "\n",
   "      </ul>\n",
   "    </section>\n",
   "    <section class='comments-section'>\n",
@@ -447,10 +545,13 @@ page <- paste0(
   "      <div class='table-wrap'>\n",
   "        <table>\n",
   "          <thead>\n",
-  "            <tr>", table_header, "</tr>\n",
+  "            <tr>",
+  table_header,
+  "</tr>\n",
   "          </thead>\n",
   "          <tbody>\n",
-  table_rows, "\n",
+  table_rows,
+  "\n",
   "          </tbody>\n",
   "        </table>\n",
   "      </div>\n",
